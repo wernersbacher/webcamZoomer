@@ -33,8 +33,8 @@ class VirtualCam:
                 else:
                     img = self.EMPTY_IMAGE
 
-                self.cap.send(effects.zoom(img, self.zoom))
-                self.cap.sleep_until_next_frame()
+                cam.send(effects.zoom(img, self.zoom))
+                cam.sleep_until_next_frame()
             print("Stopped camera capturing!")
 
     def pause(self):
@@ -52,5 +52,6 @@ class VirtualCam:
 
 if __name__ == '__main__':
     cam = VirtualCam()
+    cam.addZoom(-0.13)
     cam.run()
 
