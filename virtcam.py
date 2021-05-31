@@ -60,6 +60,12 @@ class VirtualCam:
         elif self.zoom < 0:
             self.zoom = 0
 
+    def getZoom(self):
+        return self.zoom
+
+    def getZoomString(self):
+        return f"Zoom: {int(100*self.zoom)}"
+
 
 if __name__ == '__main__':
     cam = VirtualCam()

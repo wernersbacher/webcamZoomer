@@ -15,6 +15,8 @@ import win32api  # package pywin32
 import win32con
 import win32gui_struct
 
+import helper
+
 try:
     import winxpgui as win32gui
 except ImportError:
@@ -98,6 +100,10 @@ class SysTrayIcon(object):
                 print('Unknown item', option_text, option_icon, option_action)
             self._next_action_id += 1
         return result
+    
+    def set_menuoptions(self, menu_options):
+        menu_options = menu_options + (('Quit', None, self.QUIT),)
+        self.menu_options = self._add_ids_to_menu_options(list(menu_options))
 
     def refresh_icon(self):
         # Try and find a custom icon
@@ -233,14 +239,9 @@ if __name__ == '__main__':
     from multiprocessing import Process
     import threading
 
-    WEBCAM_ICON = os.path.join(os.path.dirname(__file__), "webcam.ico")
-
     vcam = virtcam.VirtualCam(0.85)
-    #cam_thread = Process(target=vcam.run)
     cam_thread = threading.Thread(target=vcam.run)
     cam_thread.start()
-
-    hover_text = "Webcam Zoomer"
 
     # controlling vcam
     def pause(sysTrayIcon):
@@ -254,20 +255,32 @@ if __name__ == '__main__':
         vcam.stop()
         cam_thread.join()
 
-    menu_options = (
-        ('Pause', WEBCAM_ICON, pause),
-        ('Continue', WEBCAM_ICON, cont),
-        ('Zoom', WEBCAM_ICON, (
-         ('+50%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.5)),
-         ('-50%', WEBCAM_ICON, lambda x: vcam.addZoom(0.5)),
-         ('+20%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.2)),
-         ('-20%', WEBCAM_ICON, lambda x: vcam.addZoom(0.2)),
-         ('+10%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.1)),
-         ('-10%', WEBCAM_ICON, lambda x: vcam.addZoom(0.1)),
-         ('+2%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.02)),
-         ('-2%', WEBCAM_ICON, lambda x: vcam.addZoom(0.02)))
-         )
-        )
+    def addZoom(sysTrayIcon, zoom_delta):
+        vcam.addZoom(zoom_delta)
+        menu_options[2][0] = vcam.getZoomString()
+        #refreshMenuOptions(sysTrayIcon) #not working yet
+
+    def refreshMenuOptions(sysTrayIcon):
+        sysTrayIcon.set_menuoptions(helper.convertTuples(menu_options))
+
+    hover_text = "Webcam Zoomer"
+    WEBCAM_ICON = os.path.join(os.path.dirname(__file__), "webcam.ico")
+
+    menu_options = [
+        ['Pause', WEBCAM_ICON, pause],
+        ['Continue', WEBCAM_ICON, cont],
+        [vcam.getZoomString(), WEBCAM_ICON, lambda sysTrayIcon: None],
+        ['Zoom', WEBCAM_ICON, [
+         ['+50%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,-0.5)],
+         ['-50%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,0.5)],
+         ['+20%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,-0.2)],
+         ['-20%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,0.2)],
+         ['+10%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,-0.1)],
+         ['-10%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,0.1)],
+         ['+2%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,-0.02)],
+         ['-2%', WEBCAM_ICON, lambda sysTrayIcon: addZoom(sysTrayIcon,0.02)]]
+         ]
+        ]
 
 
     def bye(sysTrayIcon):
@@ -275,4 +288,4 @@ if __name__ == '__main__':
         # interrupt and join
         stop(sysTrayIcon)
 
-    SysTrayIcon(WEBCAM_ICON, hover_text, menu_options, on_quit=bye, default_menu_index=1)
+    gui = SysTrayIcon(WEBCAM_ICON, hover_text, helper.convertTuples(menu_options), on_quit=bye, default_menu_index=1)
