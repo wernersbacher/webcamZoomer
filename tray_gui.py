@@ -231,19 +231,16 @@ if __name__ == '__main__':
     import os
     import virtcam
     from multiprocessing import Process
+    import threading
+
+    WEBCAM_ICON = os.path.join(os.path.dirname(__file__), "webcam.ico")
 
     vcam = virtcam.VirtualCam(0.85)
-    cam_thread = Process(target=vcam.run)
+    #cam_thread = Process(target=vcam.run)
+    cam_thread = threading.Thread(target=vcam.run)
     cam_thread.start()
 
-
-    ico_path2 = os.path.dirname(__file__)+"/icons/*.ico"
-    icons = itertools.cycle(glob.glob(ico_path2))
     hover_text = "Webcam Zoomer"
-
-    def switch_icon(sysTrayIcon):
-        sysTrayIcon.icon = next(icons)
-        sysTrayIcon.refresh_icon()
 
     # controlling vcam
     def pause(sysTrayIcon):
@@ -255,16 +252,20 @@ if __name__ == '__main__':
     def stop(sysTrayIcon):
         global cam_thread
         vcam.stop()
-
-        cam_thread.terminate()
         cam_thread.join()
 
     menu_options = (
-        ('Pause', next(icons), pause),
-        ('Continue', next(icons), cont),
-        ('Zoom', next(icons), (
-         ('+10%', next(icons), lambda x: vcam.addZoom(0.1)),
-         ('-10%', next(icons), lambda x: vcam.addZoom(-0.1)))
+        ('Pause', WEBCAM_ICON, pause),
+        ('Continue', WEBCAM_ICON, cont),
+        ('Zoom', WEBCAM_ICON, (
+         ('+50%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.5)),
+         ('-50%', WEBCAM_ICON, lambda x: vcam.addZoom(0.5)),
+         ('+20%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.2)),
+         ('-20%', WEBCAM_ICON, lambda x: vcam.addZoom(0.2)),
+         ('+10%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.1)),
+         ('-10%', WEBCAM_ICON, lambda x: vcam.addZoom(0.1)),
+         ('+2%', WEBCAM_ICON, lambda x: vcam.addZoom(-0.02)),
+         ('-2%', WEBCAM_ICON, lambda x: vcam.addZoom(0.02)))
          )
         )
 
@@ -274,6 +275,4 @@ if __name__ == '__main__':
         # interrupt and join
         stop(sysTrayIcon)
 
-    SysTrayIcon(next(icons), hover_text, menu_options, on_quit=bye, default_menu_index=1)
-
-    print("Finished Python virtcam tray software.")
+    SysTrayIcon(WEBCAM_ICON, hover_text, menu_options, on_quit=bye, default_menu_index=1)

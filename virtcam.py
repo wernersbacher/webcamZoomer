@@ -2,10 +2,9 @@ import pyvirtualcam
 import cv2
 import effects
 import numpy as np
-import multiprocessing
 
 
-class VirtualCam(multiprocessing.Process):
+class VirtualCam:
 
     # TODO: manager für boolean, oder einfach nur threading
 
@@ -16,7 +15,7 @@ class VirtualCam(multiprocessing.Process):
         self.paused = False
 
         self.cap = None
-        self.zoom = 1
+        self.zoom = zoom
 
         # constants
         self.FPS = 30
@@ -56,6 +55,10 @@ class VirtualCam(multiprocessing.Process):
 
     def addZoom(self, zoom_delta):
         self.zoom += zoom_delta
+        if self.zoom > 1:
+            self.zoom = 1
+        elif self.zoom < 0:
+            self.zoom = 0
 
 
 if __name__ == '__main__':
