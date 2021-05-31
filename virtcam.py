@@ -7,7 +7,7 @@ import multiprocessing
 
 class VirtualCam(multiprocessing.Process):
 
-    # TODO: manager für boolean
+    # TODO: manager für boolean, oder einfach nur threading
 
     def __init__(self, zoom=1):
         # No need for locking on that variables, as it's "thread safe", as long we only write from one thread!

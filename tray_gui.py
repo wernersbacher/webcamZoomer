@@ -228,14 +228,17 @@ def non_string_iterable(obj):
 if __name__ == '__main__':
     import itertools
     import glob
+    import os
     import virtcam
     from multiprocessing import Process
 
-    vcam = virtcam.VirtualCam(0.87)
+    vcam = virtcam.VirtualCam(0.85)
     cam_thread = Process(target=vcam.run)
     cam_thread.start()
 
-    icons = itertools.cycle(glob.glob('icons/*.ico'))
+
+    ico_path2 = os.path.dirname(__file__)+"/icons/*.ico"
+    icons = itertools.cycle(glob.glob(ico_path2))
     hover_text = "Webcam Zoomer"
 
     def switch_icon(sysTrayIcon):
