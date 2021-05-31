@@ -2,19 +2,20 @@ import pyvirtualcam
 import cv2
 import effects
 import numpy as np
+import multiprocessing
 
 
-class VirtualCam:
+class VirtualCam(multiprocessing.Process):
 
-    def __init__(self):
+    # TODO: manager für boolean
+
+    def __init__(self, zoom=1):
         # No need for locking on that variables, as it's "thread safe", as long we only write from one thread!
+        super().__init__()
         self.stopped = False
         self.paused = False
 
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-
+        self.cap = None
         self.zoom = 1
 
         # constants
@@ -23,7 +24,13 @@ class VirtualCam:
         self.HEIGHT = 720
         self.EMPTY_IMAGE = np.zeros((self.HEIGHT, self.WIDTH, 3), np.uint8)
 
+    def initCaptureDevice(self):
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
     def run(self):
+        self.initCaptureDevice()
         with pyvirtualcam.Camera(width=1280, height=720, fps=self.FPS, fmt=pyvirtualcam.PixelFormat.BGR) as cam:
             print(f'Using virtual camera: {cam.device}')
 
@@ -38,6 +45,7 @@ class VirtualCam:
             print("Stopped camera capturing!")
 
     def pause(self):
+        print("called vcam pause")
         self.paused = True
 
     def cont(self):
@@ -54,4 +62,3 @@ if __name__ == '__main__':
     cam = VirtualCam()
     cam.addZoom(-0.13)
     cam.run()
-

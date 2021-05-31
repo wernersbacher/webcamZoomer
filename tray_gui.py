@@ -231,9 +231,9 @@ if __name__ == '__main__':
     import virtcam
     from multiprocessing import Process
 
-    cam_thread = None
-
-    vcam = virtcam.VirtualCam()
+    vcam = virtcam.VirtualCam(0.87)
+    cam_thread = Process(target=vcam.run)
+    cam_thread.start()
 
     icons = itertools.cycle(glob.glob('icons/*.ico'))
     hover_text = "Webcam Zoomer"
@@ -249,20 +249,14 @@ if __name__ == '__main__':
     def cont(sysTrayIcon):
         vcam.cont()
 
-    def start(sysTrayIcon):
-        global cam_thread
-        # start threading for camera capture here
-        cam_thread = Process(target=vcam.run)
-        cam_thread.start()
-
     def stop(sysTrayIcon):
         global cam_thread
         vcam.stop()
+
+        cam_thread.terminate()
         cam_thread.join()
 
     menu_options = (
-        ('Start', next(icons), start),
-        ('Stop', next(icons), stop),
         ('Pause', next(icons), pause),
         ('Continue', next(icons), cont),
         ('Zoom', next(icons), (
@@ -275,8 +269,7 @@ if __name__ == '__main__':
     def bye(sysTrayIcon):
         print('Bye, then.')
         # interrupt and join
-        stop()
-
+        stop(sysTrayIcon)
 
     SysTrayIcon(next(icons), hover_text, menu_options, on_quit=bye, default_menu_index=1)
 
