@@ -1,0 +1,5 @@
+numpy==1.16.2
+opencv-python==4.0.0.21
+opencv-wrapper==0.2.3
+pyvirtualcam==0.8.0
+pywin32==301

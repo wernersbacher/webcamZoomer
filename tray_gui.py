@@ -100,7 +100,7 @@ class SysTrayIcon(object):
                 print('Unknown item', option_text, option_icon, option_action)
             self._next_action_id += 1
         return result
-    
+
     def set_menuoptions(self, menu_options):
         menu_options = menu_options + (('Quit', None, self.QUIT),)
         self.menu_options = self._add_ids_to_menu_options(list(menu_options))
@@ -258,7 +258,7 @@ if __name__ == '__main__':
     def addZoom(sysTrayIcon, zoom_delta):
         vcam.addZoom(zoom_delta)
         menu_options[2][0] = vcam.getZoomString()
-        #refreshMenuOptions(sysTrayIcon) #not working yet
+        refreshMenuOptions(sysTrayIcon) #not working yet
 
     def refreshMenuOptions(sysTrayIcon):
         sysTrayIcon.set_menuoptions(helper.convertTuples(menu_options))

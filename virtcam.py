@@ -58,7 +58,7 @@ class VirtualCam:
         if self.zoom > 1:
             self.zoom = 1
         elif self.zoom < 0:
-            self.zoom = 0
+            self.zoom = 0.01
 
     def getZoom(self):
         return self.zoom
